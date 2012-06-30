@@ -1,10 +1,11 @@
 <div >	
 	<p> Lorem ipsum index </p>
 	<div id='imgur_upload' style="width: 100%; height: 200px;">
-		<form:form id="userForm" method="post" commandName="user" enctype="multipart/form-data" data-ajax="false">
-  		<input type="file" name="post[file]" />
+		<form id="userForm" enctype="multipart/form-data" data-remote="true" data-ajax="false">
+  		<input type="hidden" name="key" value="3e1abddad6fba082f7d20aa9ea3ef783" />
+  		<input type="file" name="image" />
+		<input type="submit" onClick="Reinvent.app.submitImage(this.form)" name="form-submit" value="Send" />
 		</form>
-		<button id="form-submit">Submit</button>
 	</div>
 	<div id='map_canvas' style="width: 100%; height: 400px;"></div>
 </div>
@@ -19,7 +20,8 @@
         map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
 		Reinvent(function(env) {
 		  Reinvent.app = new env.app.Instance(map, {
-		        logging    : true
+		        logging       : true,
+				imgur_form_id : 'imgur_upload'
 		    });
 		  Reinvent.app.run();
 		  Reinvent.env = env;
