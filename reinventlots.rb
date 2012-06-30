@@ -36,7 +36,8 @@ end
 
 
 #CARTODB_CONF = YAML.load_file(Rails.root.join('config/cartodb_config.yml'))[RAILS_ENV]
-CARTODB_CONF = YAML::load(File.read('config/cartodb_config.yml'))
+CARTODB_CONF = ENV['CARTTODB_CONF'] ? ENV['CARTTODB_CONF'] : YAML::load(File.read('config/cartodb_config.yml'))
+
 def quote_string astr
   return astr.gsub(/\A['"]+|['"]+\Z/, "").gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(';',' ')
 end
