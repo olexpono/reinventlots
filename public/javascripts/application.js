@@ -71,6 +71,7 @@ Reinvent.modules.app = function(reinvent) {
       create_params["lat"] = place_location[0];
       create_params["lng"] = place_location[1];
       create_params["name"] = "TODO: Place Names";
+      create_params["address"] = "Some google address";
       create_params["desc"] = "Some description";
       create_params["orig"] = imgur_data.upload.links.original;
       create_params["small"] = imgur_data.upload.links.large_thumbnail;
@@ -78,7 +79,7 @@ Reinvent.modules.app = function(reinvent) {
       $.ajax({
         type: "POST",
         url: "/api/create",
-        data: JSON.stringify(create_params)
+        data:  create_params,//JSON.stringify(create_params)
       }).done( function(data) {
         console.log("created! :: data = " + data);
       });
@@ -153,7 +154,7 @@ Reinvent.modules.maplayer = function(reinvent) {
             // pass
         },
         getLocation: function(position) {
-          return [this.lat, this.long];
+          return [this.lat, this.lng];
         },
     });
     reinvent.maplayer.Display = Class.extend({
