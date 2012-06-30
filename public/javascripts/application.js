@@ -48,10 +48,15 @@ Reinvent.modules.app = function(reinvent) {
         this.maplayer.run();
         this.imguruploader.run();
         reinvent.log.info('app running');
+        $("#userForm").submit(function() {
+          Reinvent.app.logImage($("#userForm"));
+          Reinvent.app.imguruploader.uploadImage($("#imgur_upload input[type=file]")[0].files[0]);
+          return false; // prevents actual HTTP submit
+        });
     },
-    submitImage: function(form){
+    logImage: function(form){
         console.log(form);
-        console.log('blocked')
+        console.log('blocked');
     }
   });
 };
@@ -63,36 +68,29 @@ Reinvent.modules.imguruploader = function(reinvent) {
             this._divid = divid;
         },
         run: function(){
-            this.setListeners();
         },
-        setListeners: function() {
-            $('#'+this._divid+' form').bind('ajax:success', function(event, data) {
-              console.log(data);
-            });
-        },
-        setupForm: function(){
-            $('#' + divid + ' #form-submit').live('click', function(){
-               if (!file || !file.type.match(/image.*/)) return;
+        uploadImage: function(file){
+            if (!file || !file.type.match(/image.*/)) return;
 
-               // It is!
-               // Let's build a FormData object
-               var fd = new FormData();
-               fd.append("image", file); // Append the file
-               fd.append("key", "API_KEY"); // Get your own key: http://api.imgur.com/
+            // It is!
+            // Let's build a FormData object
+            var fd = new FormData();
+            fd.append("image", file); // Append the file
+            fd.append("key", "3e1abddad6fba082f7d20aa9ea3ef783");
 
-               // Create the XHR (Cross-Domain XHR FTW!!!)
-               var xhr = new XMLHttpRequest();
-               xhr.open("POST", "http://api.imgur.com/2/upload.json"); // Boooom!
-               xhr.onload = function() {
-                  // Big win!
-                  // The URL of the image is:
-                  JSON.parse(xhr.responseText).upload.links.imgur_page;
-               }
+            // Create the XHR (Cross-Domain XHR FTW!!!)
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "http://api.imgur.com/2/upload.json"); // Boooom!
+            xhr.onload = function() {
+               // Big win!
+               // The URL of the image is:
+               var parsedResponse = JSON.parse(xhr.responseText);
+               alert(parsedResponse.upload.links.imgur_page);
+            }
 
-               // Ok, I don't handle the errors. An exercice for the reader.
-               // And now, we send the formdata
-               xhr.send(fd);
-            });
+            // Ok, I don't handle the errors. An exercice for the reader.
+            // And now, we send the formdata
+            xhr.send(fd);
         }
     });
 }
