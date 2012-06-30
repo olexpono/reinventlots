@@ -1,3 +1,4 @@
-require ::File.join( ::File.dirname(__FILE__), 'reinventlots' )
-run ReinventLots
-
+require 'rubygems'
+require 'sinatra'
+require './reinventlots'
+run Sinatra::Application
