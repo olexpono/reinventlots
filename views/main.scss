@@ -2,3 +2,11 @@ body {
   max-width: 960px;
   background-color: whiteSmoke;
 }
+header > hgroup {
+  a { text-decoration: none; }
+  h1 {
+    color: #4ac;
+    font-family: 'Helvetica', sans-serif;
+    text-decoration: none;
+  }
+}
