@@ -41,11 +41,12 @@ def quote_string astr
   return astr.gsub(/\A['"]+|['"]+\Z/, "").gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(';',' ')
 end
 
-get '/api/create' do
+post '/api/create' do
   map = {}
   params.each_pair do |k,v|
     map[k] = quote_string(v)
   end
+  puts 'RECEIVED CREATE CALL ' + map.inspect
   map[:hash] = "RL-#{ActiveSupport::SecureRandom.base64(4).gsub("/","_").gsub(/=+$/,"")}"
   
   sql = "INSERT INTO #{CARTODB_CONF['locations_table']}(the_geom, hash, name, description, address, imgur_orig, imgur_small, imgur_thumb) VALUES (ST_SetSRID(ST_MakePoint(#{map[:lng]},#{map[:lat]}),4326), '#{map[:hash]}', '#{map[:name]}', '#{map[:desc]}', '#{map[:address]}', '#{map[:orig]}', '#{map[:small]}', '#{map[:thumb]}')"

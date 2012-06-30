@@ -65,8 +65,23 @@ Reinvent.modules.app = function(reinvent) {
         console.log('blocked');
     },
     createPlace: function(form, imgur_data) {
-      // TODO(olex): submit to /create
       console.log('Uploaded to imgur! ' + imgur_data.upload.links.imgur_page);
+      var create_params = {};
+      var place_location = Reinvent.app.maplayer.getLocation();
+      create_params["lat"] = place_location[0];
+      create_params["lng"] = place_location[1];
+      create_params["name"] = "TODO: Place Names";
+      create_params["desc"] = "Some description";
+      create_params["orig"] = imgur_data.upload.links.original;
+      create_params["small"] = imgur_data.upload.links.large_thumbnail;
+      create_params["thumb"] = imgur_data.upload.links.small_square;
+      $.ajax({
+        type: "POST",
+        url: "/api/create",
+        data: JSON.stringify(create_params)
+      }).done( function(data) {
+        console.log("created! :: data = " + data);
+      });
     }
   });
 };
@@ -105,6 +120,8 @@ Reinvent.modules.maplayer = function(reinvent) {
             reinvent.log.info('map engine init');
             var that = this;
             this._map = map;
+            this.lat = null;
+            this.lng = null;
         },
         run: function(){
             this.panToUser();
@@ -127,13 +144,16 @@ Reinvent.modules.maplayer = function(reinvent) {
             } 
         },
         locationSuccess: function(position){
-    	    var lat = position.coords.latitude;
-    	    var lng = position.coords.longitude;
-		    var latlng = new google.maps.LatLng(lat, lng);
-            this._map.setCenter(latlng);
+    	    this.lat = position.coords.latitude;
+    	    this.lng = position.coords.longitude;
+		      var latlng = new google.maps.LatLng(this.lat, this.lng);
+          this._map.setCenter(latlng);
         },
         locationFail: function(position){
             // pass
+        },
+        getLocation: function(position) {
+          return [this.lat, this.long];
         },
     });
     reinvent.maplayer.Display = Class.extend({
