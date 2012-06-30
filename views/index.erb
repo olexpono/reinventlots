@@ -1,1 +1,33 @@
-<p> Lorem ipsum index </p>
+<script>
+	function initialize() {
+		// get user location
+		var lat, lng;
+	    var geocoder = new google.maps.Geocoder();
+	    if(google.loader.ClientLocation) {
+	        lat = google.loader.ClientLocation.latitude;
+	        lng = google.loader.ClientLocation.longitude;
+		} else {
+			lat = 40.73373;
+			lng = -73.994293;
+		}
+		var latlng = new google.maps.LatLng(lat, lng);
+		// initialise the google map
+		var map = new google.maps.Map(document.getElementById('map_canvas'), {
+		    center: latlng,
+		    zoom: 5,
+		    mapTypeId: google.maps.MapTypeId.SATELLITE,
+		    mapTypeControl: false
+		});
+		Reinvent(function(env) {
+		  Reinvent.app = new env.app.Instance(map, {
+		        logging    : true
+		    });
+		  Reinvent.app.run();
+		  Reinvent.env = env;
+		});
+	}
+</script>
+<div  onload="initialize()">	
+	<p> Lorem ipsum index </p>
+	<div id='map_canvas'></div>
+</div>

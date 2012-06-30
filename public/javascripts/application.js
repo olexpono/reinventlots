@@ -44,6 +44,25 @@ Reinvent.modules.app = function(reinvent) {
   });
 };
 
+Reinvent.modules.maplayer = function(reinvent) {
+    reinvent.maplayer = {};
+    reinvent.maplayer.Engine = Class.extend({
+        init: function(layer, map) {
+        
+        }
+    });
+    reinvent.maplayer.Display = Class.extend({
+        /**
+         * Constructs a new Display with the given DOM element.
+         */
+        init: function() {
+            reinvent.log.info('map displayed');
+        },
+        setEngine: function(engine) {
+            this._engine = engine;
+        }
+    });
+}
 /**
  * Logging module that reinventtes log messages to the console
  *
