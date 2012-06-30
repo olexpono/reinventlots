@@ -5,6 +5,7 @@ require 'compass'
 require "json"
 require "uri"
 require "net/http"
+require "yaml"
 require 'active_support'
 
 configure do

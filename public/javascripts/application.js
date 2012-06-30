@@ -50,13 +50,23 @@ Reinvent.modules.app = function(reinvent) {
         reinvent.log.info('app running');
         $("#userForm").submit(function() {
           Reinvent.app.logImage($("#userForm"));
-          Reinvent.app.imguruploader.uploadImage($("#imgur_upload input[type=file]")[0].files[0]);
+          var imgur_callback = function(imgur_data) {
+            Reinvent.app.createPlace(this, imgur_data);
+          }
+          Reinvent.app.imguruploader.uploadImage(
+              $("#imgur_upload input[type=file]")[0].files[0],
+              imgur_callback
+          );
           return false; // prevents actual HTTP submit
         });
     },
     logImage: function(form){
         console.log(form);
         console.log('blocked');
+    },
+    createPlace: function(form, imgur_data) {
+      // TODO(olex): submit to /create
+      console.log('Uploaded to imgur! ' + imgur_data.upload.links.imgur_page);
     }
   });
 };
@@ -69,27 +79,20 @@ Reinvent.modules.imguruploader = function(reinvent) {
         },
         run: function(){
         },
-        uploadImage: function(file){
+        uploadImage: function(file, callback){
             if (!file || !file.type.match(/image.*/)) return;
 
-            // It is!
-            // Let's build a FormData object
             var fd = new FormData();
-            fd.append("image", file); // Append the file
+            fd.append("image", file);
             fd.append("key", "3e1abddad6fba082f7d20aa9ea3ef783");
 
-            // Create the XHR (Cross-Domain XHR FTW!!!)
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://api.imgur.com/2/upload.json"); // Boooom!
+            xhr.open("POST", "http://api.imgur.com/2/upload.json");
             xhr.onload = function() {
-               // Big win!
-               // The URL of the image is:
                var parsedResponse = JSON.parse(xhr.responseText);
-               alert(parsedResponse.upload.links.imgur_page);
+               callback(parsedResponse);
             }
 
-            // Ok, I don't handle the errors. An exercice for the reader.
-            // And now, we send the formdata
             xhr.send(fd);
         }
     });
