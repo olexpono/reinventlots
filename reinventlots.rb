@@ -5,6 +5,7 @@ require 'compass'
 require "json"
 require "uri"
 require "net/http"
+require "yaml"
 
 configure do
   Compass.configuration do |config|
