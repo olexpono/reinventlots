@@ -42,12 +42,16 @@ Reinvent.modules.app = function(reinvent) {
       reinvent.log.enabled = options ? options.logging: false;
       this._map = map;
       this.maplayer = new reinvent.maplayer.Engine(this._map, {})
-      this.imguruploader = new reinvent.imguruploader.Engine(this._map, {})
+      this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id)
     },
     run: function() {
         this.maplayer.run();
         this.imguruploader.run();
         reinvent.log.info('app running');
+    },
+    submitImage: function(form){
+        console.log(form);
+        console.log('blocked')
     }
   });
 };
@@ -59,12 +63,36 @@ Reinvent.modules.imguruploader = function(reinvent) {
             this._divid = divid;
         },
         run: function(){
-            this.setupForm();
+            this.setListeners();
+        },
+        setListeners: function() {
+            $('#'+this._divid+' form').bind('ajax:success', function(event, data) {
+              console.log(data);
+            });
         },
         setupForm: function(){
             $('#' + divid + ' #form-submit').live('click', function(){
-                
-            }
+               if (!file || !file.type.match(/image.*/)) return;
+
+               // It is!
+               // Let's build a FormData object
+               var fd = new FormData();
+               fd.append("image", file); // Append the file
+               fd.append("key", "API_KEY"); // Get your own key: http://api.imgur.com/
+
+               // Create the XHR (Cross-Domain XHR FTW!!!)
+               var xhr = new XMLHttpRequest();
+               xhr.open("POST", "http://api.imgur.com/2/upload.json"); // Boooom!
+               xhr.onload = function() {
+                  // Big win!
+                  // The URL of the image is:
+                  JSON.parse(xhr.responseText).upload.links.imgur_page;
+               }
+
+               // Ok, I don't handle the errors. An exercice for the reader.
+               // And now, we send the formdata
+               xhr.send(fd);
+            });
         }
     });
 }
