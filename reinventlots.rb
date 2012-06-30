@@ -44,7 +44,9 @@ end
 post '/api/create' do
   map = {}
   params.each_pair do |k,v|
-    map[k] = quote_string(v)
+    if v.is_a? String
+      map[k] = quote_string(v)
+    end
   end
   # puts 'RECEIVED CREATE CALL ' + map.inspect
 
