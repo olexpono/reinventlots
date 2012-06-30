@@ -46,19 +46,26 @@ post '/api/create' do
   params.each_pair do |k,v|
     map[k] = quote_string(v)
   end
-  puts 'RECEIVED CREATE CALL ' + map.inspect
-  map[:hash] = "RL-#{ActiveSupport::SecureRandom.base64(4).gsub("/","_").gsub(/=+$/,"")}"
+  # puts 'RECEIVED CREATE CALL ' + map.inspect
+
+  address_check = "SELECT count(*) FROM #{CARTODB_CONF['locations_table']} WHERE address = '#{map['address']}'"
+  params = {'q'=>address_check, 'api_key'=>CARTODB_CONF['api_key']}
+  y = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
+  if JSON.parse(y.body)['rows'].first['count'].to_i>0
+    {"error"=>"Location already exists", "number" => JSON.parse(y.body)['rows'].first['count'].to_i, "sql"=> address_check}.to_json
+  else
   
-  sql = "INSERT INTO #{CARTODB_CONF['locations_table']}(the_geom, hash, name, description, address, imgur_orig, imgur_small, imgur_thumb) VALUES (ST_SetSRID(ST_MakePoint(#{map[:lng]},#{map[:lat]}),4326), '#{map[:hash]}', '#{map[:name]}', '#{map[:desc]}', '#{map[:address]}', '#{map[:orig]}', '#{map[:small]}', '#{map[:thumb]}')"
-  req = "http://#{CARTODB_CONF['host']}.cartodb.com/api/v2/sql"
+    map['hash'] = "RL-#{ActiveSupport::SecureRandom.base64(4).gsub("/","_").gsub(/=+$/,"")}"
+    map['created'] = time = Time.now.getutc
+    
+    sql = "INSERT INTO #{CARTODB_CONF['locations_table']}(the_geom, hash, name, description, address, imgur_orig, imgur_small, imgur_thumb) VALUES (ST_SetSRID(ST_MakePoint(#{map['lng']},#{map['lat']}),4326), '#{map['hash']}', '#{map['name']}', '#{map['desc']}', '#{map['address']}', '#{map['orig']}', '#{map['small']}', '#{map['thumb']}')"
+    req = "http://#{CARTODB_CONF['host']}.cartodb.com/api/v2/sql"
   
+    params = {'q'=>sql, 'api_key'=>CARTODB_CONF['api_key']}
+    x = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
   
-  params = {'q'=>sql, 'api_key'=>CARTODB_CONF['api_key']}
-  x = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
-  
-  map[:created] = time = Time.now.getutc
-  
-  map.to_json
+    map.to_json
+  end
 end
 
 get '/api/add' do
@@ -66,15 +73,22 @@ get '/api/add' do
   params.each_pair do |k,v|
     map[k] = quote_string(v)
   end
+  address_check = "SELECT count(*) FROM #{CARTODB_CONF['locations_table']} WHERE hash = '#{map['hash']}'"
+  params = {'q'=>address_check, 'api_key'=>CARTODB_CONF['api_key']}
+  y = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
   
-  sql = "INSERT INTO #{CARTODB_CONF['locations_table']}(the_geom, hash, name, description, address, imgur_orig, imgur_small, imgur_thumb) VALUES (ST_SetSRID(ST_MakePoint(#{map[:lng]},#{map[:lat]}),4326), '#{map[:hash]}', '#{map[:name]}', '#{map[:desc]}', '#{map[:address]}', '#{map[:orig]}', '#{map[:small]}', '#{map[:thumb]}')"
-  req = "http://#{CARTODB_CONF['host']}.cartodb.com/api/v2/sql"
+  if JSON.parse(y.body)['rows'].first['count']==0
+    {"error"=>"Location does not exist"}.to_json
+  else
+    sql = "INSERT INTO #{CARTODB_CONF['locations_table']}(the_geom, hash, name, description, address, imgur_orig, imgur_small, imgur_thumb) VALUES (ST_SetSRID(ST_MakePoint(#{map['lng']},#{map['lat']}),4326), '#{map['hash']}', '#{map['name']}', '#{map['desc']}', '#{map['address']}', '#{map['orig']}', '#{map['small']}', '#{map['thumb']}')"
+    req = "http://#{CARTODB_CONF['host']}.cartodb.com/api/v2/sql"
   
   
-  params = {'q'=>sql, 'api_key'=>CARTODB_CONF['api_key']}
-  x = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
+    params = {'q'=>sql, 'api_key'=>CARTODB_CONF['api_key']}
+    x = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
   
-  map[:added] = time = Time.now.getutc
+    map[:added] = time = Time.now.getutc
   
-  map.to_json
+    map.to_json
+  end
 end
