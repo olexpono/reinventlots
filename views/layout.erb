@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title><%= @title || "Reinvent Lots"%></title>
+    <link rel="stylesheet" href="/css/main.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Wire+One:regular">
+    <!-- <link rel="icon" href="/favicon.ico"> -->
+  </head>
+  <body>
+    <nav>
+      <%= link_to "/about" %>
+    </nav>
+    <div>
+      <h1>Reinvent Lots</h1>
+    </div>
+    <div id="content">
+      <%= yield %>
+    </div>
+  </body>
+</html>
