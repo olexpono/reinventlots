@@ -50,7 +50,7 @@ get '/api/create' do
   params = {'q'=>address_check, 'api_key'=>CARTODB_CONF['api_key']}
   y = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
   if JSON.parse(y.body)['rows'].first['count'].to_i>0
-    {"error"=>"Location already exists", "number" => JSON.parse(y.body)['rows'].first['count'].to_i, "sql"=> address_check}.to_json
+    {"error"=>"Location already exists"}.to_json
   else
   
     map['hash'] = "RL-#{ActiveSupport::SecureRandom.base64(4).gsub("/","_").gsub(/=+$/,"")}"
