@@ -1,3 +1,4 @@
+
 function Reinvent() {
   var args = Array.prototype.slice.call(arguments),
   callback = args.pop(),
@@ -41,13 +42,32 @@ Reinvent.modules.app = function(reinvent) {
       reinvent.log.enabled = options ? options.logging: false;
       this._map = map;
       this.maplayer = new reinvent.maplayer.Engine(this._map, {})
+      this.imguruploader = new reinvent.imguruploader.Engine(this._map, {})
     },
     run: function() {
         this.maplayer.run();
+        this.imguruploader.run();
         reinvent.log.info('app running');
     }
   });
 };
+
+Reinvent.modules.imguruploader = function(reinvent) {
+    reinvent.imguruploader = {};
+    reinvent.imguruploader.Engine = Class.extend({
+        init: function(divid) {
+            this._divid = divid;
+        },
+        run: function(){
+            this.setupForm();
+        },
+        setupForm: function(){
+            $('#' + divid + ' #form-submit').live('click', function(){
+                
+            }
+        }
+    });
+}
 
 Reinvent.modules.maplayer = function(reinvent) {
     reinvent.maplayer = {};
@@ -63,7 +83,7 @@ Reinvent.modules.maplayer = function(reinvent) {
         },
         setupListeners: function(){
             // TODO: listen for pin clicks
-        }
+        },
         dropPin: function(){
             // TODO
         },
