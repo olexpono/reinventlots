@@ -90,5 +90,5 @@ get '/api/add' do
     map[:added] = time = Time.now.getutc
   
     map.to_json
-  }
+  end
 end
