@@ -41,11 +41,13 @@ def quote_string astr
   return astr.gsub(/\A['"]+|['"]+\Z/, "").gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(';',' ')
 end
 
-get '/api/create' do
+post '/api/create' do
   map = {}
   params.each_pair do |k,v|
     map[k] = quote_string(v)
   end
+  # puts 'RECEIVED CREATE CALL ' + map.inspect
+
   address_check = "SELECT count(*) FROM #{CARTODB_CONF['locations_table']} WHERE address = '#{map['address']}'"
   params = {'q'=>address_check, 'api_key'=>CARTODB_CONF['api_key']}
   y = Net::HTTP.post_form(URI.parse(CARTODB_CONF['post_url']), params)
