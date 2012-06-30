@@ -1,4 +1,4 @@
 require 'rubygems'
 require 'sinatra'
 require './reinventlots'
-run ReinventLotst.new
+run Sinatra::Application
