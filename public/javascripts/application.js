@@ -34,32 +34,71 @@ Reinvent.modules.app = function(reinvent) {
 
   reinvent.app.Instance = Class.extend({
     init: function(map, options) {
+      reinvent.log.info('app init');
       this.options = _.defaults(options, {
           logging: false
       });
-
+      reinvent.log.enabled = options ? options.logging: false;
+      this._map = map;
+      this.maplayer = new reinvent.maplayer.Engine(this._map, {})
     },
     run: function() {
-    },
+        this.maplayer.run();
+        reinvent.log.info('app running');
+    }
   });
 };
 
 Reinvent.modules.maplayer = function(reinvent) {
     reinvent.maplayer = {};
     reinvent.maplayer.Engine = Class.extend({
-        init: function(layer, map) {
-        
+        init: function(map, options) {
+            reinvent.log.info('map engine init');
+            var that = this;
+            this._map = map;
+        },
+        run: function(){
+            this.panToUser();
+            this.setupListeners();
+        },
+        setupListeners: function(){
+            // TODO: listen for pin clicks
         }
+        dropPin: function(){
+            // TODO
+        },
+        panToUser: function(){
+            var that = this;
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position){
+                        that.locationSuccess(position);
+                    }, 
+                    this.locationFail);
+            } 
+        },
+        locationSuccess: function(position){
+    	    var lat = position.coords.latitude;
+    	    var lng = position.coords.longitude;
+		    var latlng = new google.maps.LatLng(lat, lng);
+            this._map.setCenter(latlng);
+        },
+        locationFail: function(position){
+            // pass
+        },
     });
     reinvent.maplayer.Display = Class.extend({
         /**
          * Constructs a new Display with the given DOM element.
          */
-        init: function() {
-            reinvent.log.info('map displayed');
+        init: function(map) {
+            this._map = map;
         },
         setEngine: function(engine) {
             this._engine = engine;
+        },
+        addPin: function(pin) {
+            // TODO
         }
     });
 }
