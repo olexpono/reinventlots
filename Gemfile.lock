@@ -14,9 +14,15 @@ GEM
     shotgun (0.9)
       rack (>= 1.0)
     sinatra (1.3.2)
+<<<<<<< HEAD
       rack (~> 1.3, >= 1.3.6)
       rack-protection (~> 1.2)
       tilt (~> 1.3, >= 1.3.3)
+=======
+      rack (>= 1.3.6, ~> 1.3)
+      rack-protection (~> 1.2)
+      tilt (>= 1.3.3, ~> 1.3)
+>>>>>>> 548d362500d70351898489dfb155aaa41ac183ae
     sinatra-twitter-oauth (0.0.3)
     tilt (1.3.3)
 

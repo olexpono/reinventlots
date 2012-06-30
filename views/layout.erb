@@ -13,12 +13,14 @@
     <!-- <link rel="icon" href="/favicon.ico"> -->
   </head>
   <body>
+    <header>
+      <hgroup>
+        <a href="/"><h1>Reinvent Lots</h1></a>
+      </hgroup>
+    </header>
     <nav>
-      <%= link_to "/about" %>
+      <%= link_to "/about", "About Us" %>
     </nav>
-    <div>
-      <h1>Reinvent Lots</h1>
-    </div>
     <div id="content">
       <%= yield %>
     </div>
