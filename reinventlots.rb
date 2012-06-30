@@ -5,6 +5,7 @@ require 'compass'
 require "json"
 require "uri"
 require "net/http"
+require 'active_support'
 
 configure do
   Compass.configuration do |config|
@@ -44,7 +45,7 @@ get '/api/create' do
   params.each_pair do |k,v|
     map[k] = quote_string(v)
   end
-  map[:hash] = 'Fd35ki'
+  map[:hash] = "RL-#{ActiveSupport::SecureRandom.base64(4).gsub("/","_").gsub(/=+$/,"")}"
   
   sql = "INSERT INTO #{CARTODB_CONF['locations_table']}(the_geom, hash, name, description, address, imgur_orig, imgur_small, imgur_thumb) VALUES (ST_SetSRID(ST_MakePoint(#{map[:lng]},#{map[:lat]}),4326), '#{map[:hash]}', '#{map[:name]}', '#{map[:desc]}', '#{map[:address]}', '#{map[:orig]}', '#{map[:small]}', '#{map[:thumb]}')"
   req = "http://#{CARTODB_CONF['host']}.cartodb.com/api/v2/sql"
