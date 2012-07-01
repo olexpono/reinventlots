@@ -61,27 +61,27 @@ Reinvent.modules.app = function(reinvent) {
         });
     },
     logImage: function(form){
-        console.log(form);
-        console.log('blocked');
+        reinvent.log.info(form);
+        reinvent.log.info('blocked');
     },
     createPlace: function(form, imgur_data) {
-      console.log('Uploaded to imgur! ' + imgur_data.upload.links.imgur_page);
+      reinvent.log.info('Uploaded to imgur! ' + imgur_data.upload.links.imgur_page);
       var create_params = {};
       var place_location = Reinvent.app.maplayer.getLocation();
       create_params["lat"] = place_location[0];
       create_params["lng"] = place_location[1];
       create_params["name"] = "TODO: Place Names";
-      create_params["address"] = "Some google address";
-      create_params["desc"] = "Some description";
+      create_params["address"] = Reinvent.app.maplayer.getAddress();
       create_params["orig"] = imgur_data.upload.links.original;
       create_params["small"] = imgur_data.upload.links.large_thumbnail;
       create_params["thumb"] = imgur_data.upload.links.small_square;
+      reinvent.log.info(create_params)
       $.ajax({
         type: "POST",
         url: "/api/create",
         data:  create_params,//JSON.stringify(create_params)
       }).done( function(data) {
-        console.log("created! :: data = " + data);
+        reinvent.log.info("created! :: data = " + data);
       });
     }
   });
@@ -123,16 +123,40 @@ Reinvent.modules.maplayer = function(reinvent) {
             this._map = map;
             this.lat = null;
             this.lng = null;
+            this.marker = null;
+            this.address = null;
+            this._geocoder = new google.maps.Geocoder();
         },
         run: function(){
             this.panToUser();
             this.setupListeners();
         },
         setupListeners: function(){
-            // TODO: listen for pin clicks
+            google.maps.event.addListener(this._map, 'click', function(event) {
+              Reinvent.app.maplayer.dropPin(event.latLng);
+            });
         },
-        dropPin: function(){
-            // TODO
+        setAddress: function(address){
+            this.address = address;
+        },
+        getAddress: function(){
+            return this.address
+        },
+        dropPin: function(latLng){
+          if ( this.marker ) {
+            this.marker.setPosition(latLng);
+          } else {
+            this.marker = new google.maps.Marker({
+              position: latLng,
+              map: this._map
+            });
+          }
+    	  this.lat = latLng.lat();
+    	  this.lng = latLng.lng();
+          this._geocoder.geocode({location: latLng}, function(addresses){
+              Reinvent.app.maplayer.setAddress(addresses[0].formatted_address)
+          })
+          this._map.setCenter(latLng);
         },
         panToUser: function(){
             var that = this;
@@ -147,13 +171,17 @@ Reinvent.modules.maplayer = function(reinvent) {
         locationSuccess: function(position){
     	    this.lat = position.coords.latitude;
     	    this.lng = position.coords.longitude;
-		      var latlng = new google.maps.LatLng(this.lat, this.lng);
-          this._map.setCenter(latlng);
+		    var latLng = new google.maps.LatLng(this.lat, this.lng);
+            this._geocoder.geocode({location: latLng}, function(addresses){
+                Reinvent.app.maplayer.setAddress(addresses[0].formatted_address);
+            });
+            this._map.setCenter(latLng);
         },
         locationFail: function(position){
             // pass
         },
         getLocation: function(position) {
+            console.log(this.lat, this.lng)
           return [this.lat, this.lng];
         },
     });
