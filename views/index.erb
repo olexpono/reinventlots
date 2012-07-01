@@ -1,21 +1,26 @@
-<div >	
-	<div id="left" style="width: 50%; float: left;">
-		<p> Lorem ipsum index </p>
-		<div id='imgur_upload' style="height: 50px; float: left;">
-			<form id="userForm" enctype="multipart/form-data" data-remote="true" data-ajax="false">
-	  		<input type="hidden" name="key" value="3e1abddad6fba082f7d20aa9ea3ef783" />
-	  		<input type="file" name="image" />
-			<input type="submit" name="form-submit" value="Send" />
-			</form>
-		</div>
-	</div>
-	<div id='fake-gallery' style="width: 50%; float: right;margin-bottom: 5px;">
-		<div id="name" style="width: 100%; float:left;"></div>
-		<div id="address" style="width: 100%; float:left; font-size: 0.8em"></div>
+<section id="front_page">	
+  <div id='main-image' style="background-image: url('http://i.imgur.com/EUkZq.jpg')">
+  </div>
+	<hgroup>
+    <h1>This lot has been abandoned for years.</h1>
+    <h1 class="reinvent_it">Let's reinvent it.</h1>
+	</hgroup>
+	<div id='fake-gallery'>
+		<div id="name"></div>
+		<div id="address"></div>
 		<div id="images" style="width: 100%; float: left"></div>
 	</div>
-	<div id='map_canvas' style="width: 100%; height: 400px; "></div>
-</div>
+</section>
+<section id="start_the_discussion">
+	<div id='imgur_upload' style="height: 50px; float: left;">
+    <form id="userForm" enctype="multipart/form-data" data-remote="true" data-ajax="false">
+      <input type="hidden" name="key" value="3e1abddad6fba082f7d20aa9ea3ef783" />
+      <input type="file" name="image" />
+      <input type="submit" name="form-submit" value="Reinvent it!" />
+    </form>
+  </div>
+  <div id='map_canvas' style="width: 100%; height: 400px; "></div>
+</section>
 <script>
 		// initialise the google map
 		var map = new google.maps.Map(document.getElementById('map_canvas'), {

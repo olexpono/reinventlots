@@ -8,8 +8,8 @@
 $text-color: #000;
 $bg-color: #fff;
 $header-bg: whiteSmoke;
-$gray-border: #eee;
-
+$theme-highlight: #5C832F;
+$desktop-shoutout-color: lighten($theme-highlight, 20);
 
 // FONTS
 
@@ -32,7 +32,6 @@ body > header {
   h1 {
     @extend .heading;
     font-family: $header-title-font-family;
-    font-weight: bold;
   }
   h2 {
     font-family: $header-subtitle-font-family;
@@ -43,9 +42,18 @@ body {
   line-height: 1.5em;
   color: $text-color;
   @extend .serif;
+  #fake-gallery {
+    #address {
+      font-size: 0.8em;
+    }
+  }
+  footer {
+    text-align: center;
+  }
 }
 
 h1 {
+  font-weight: bold;
   font-size: 2.2em;
   line-height: 1.2em;
 }
@@ -57,21 +65,25 @@ p { font-size: 16px; }
 //   text-shadow: darken($text-highlight-bg, 60) 0 0 5px;
 // }
 
-@media only screen and (min-width: 992px) {
-  body { font-size: 1.15em; }
+@media only screen and (min-width: 900px) {
+  #content { font-size: 1.1em; }
   h1 { font-size: 2.6em; line-height: 1.2em; }
 }
 // END FONTS
 
 // LAYOUT + COLOR APPLICATIONS
+html { height: 100% }
 body {
-  max-width: 960px;
+  position: relative; // Sticky Footer, no touchy!
+  min-height: 100%; // Sticky Footer, no touchy!
+  max-width: 860px;
+  margin: 0 auto;
   background-color: $bg-color;
   background: url('/images/cubes.png');
   > header {
     margin-bottom: .6em;
     background-color: $header-bg;
-    border-bottom: 1px solid $gray-border;
+    border-bottom: 1px solid $theme-highlight;
     h1 {
       text-indent: -9999em;
       overflow: hidden;
@@ -82,6 +94,56 @@ body {
       height: 62px;
       max-width: 350px;
     }
+  }
+  #content {
+    section {
+      padding: 2em 0 36px;
+    }
+    section#front_page {
+      position: relative;
+      overflow: hidden;
+      #main-image { // floats behind rest of section
+        position: absolute;
+        z-index: -1;
+        background-position: 50% 300px; // HACK HACK HACK.
+        height: 700px;
+        width: 100%;
+        left: 0;
+        top: 0;
+      }
+      hgroup {
+        margin: 0 0.5em;
+        color: $bg-color; // inverse!
+        text-shadow: $text-color 1px 1px 3px;
+      }
+      #fake-gallery { display: none; }
+      // DESKTOP # FRONT PAGE
+      @media only screen and (min-width: 900px) {
+        #main-image {
+          background-position: 50% 60%; // HACK HACK HACK.
+          zoom: 77%; // Screw photoshop, this is hack country.
+        }
+        hgroup {
+          color: $desktop-shoutout-color;
+          text-shadow: $bg-color 1px 1px 2px;
+          margin-top: 4em;
+          margin-left: 4em;
+        }
+        #fake-gallery {
+          display: block;
+          float: right;
+          margin-bottom: 1em;
+          width: 50%;
+        }
+      }
+    }
+  }
+  footer {
+    position: absolute;
+    right: 2em;
+    bottom: 0;
+    height: 28px;
+    color: desaturate($theme-highlight, 25);
   }
 }
 
