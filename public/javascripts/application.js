@@ -181,6 +181,7 @@ Reinvent.modules.maplayer = function(reinvent) {
             return this.address
         },
         centerPin: function(latLng){
+          this.marker.setAnimation(google.maps.Animation.BOUNCE)
           this.marker.setPosition(this._map.getCenter());  
         },
         dropPin: function(){
