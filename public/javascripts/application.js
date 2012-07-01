@@ -53,7 +53,7 @@ Reinvent.modules.app = function(reinvent) {
         this.maplayer.run();
         this.imguruploader.run();
         reinvent.log.info('app running');
-        $("#userForm").submit(function() {
+        $("#userFormAdd").submit(function() {
           Reinvent.app.logImage($("#userForm"));
           var imgur_callback = function(imgur_data) {
             //TODO add new image to gallery
@@ -64,7 +64,7 @@ Reinvent.modules.app = function(reinvent) {
           );
           return false; // prevents actual HTTP submit
         });
-        $("#userFormAdd").submit(function() {
+        $("#userForm").submit(function() {
           Reinvent.app.logImage($("#userFormAdd"));
           var imgur_callback = function(imgur_data) {
             Reinvent.app.loadPlace(this, imgur_data);
