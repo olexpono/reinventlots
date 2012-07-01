@@ -12,12 +12,13 @@
 	</div>
 </section>
 <section id="start_the_discussion">
-	<div id='imgur_upload' >
+  <div id='imgur_upload' >
+    <span class="form_header">Know an underused lot in NYC? TODO: call to action :)</span>
     <form id="userForm" enctype="multipart/form-data" data-remote="true" data-ajax="false">
       <input type="hidden" name="key" value="3e1abddad6fba082f7d20aa9ea3ef783" />
       <div class="file_input_wrapper">
-        <div class="pseudo_file_input">Click here to select a file</div>
-        <input type="file" name="image" onchange="$('#file').text($(this).val());" />
+        <div class="pseudo_file_input">Start by Uploading a Photo</div>
+        <input type="file" name="image" onchange="$('#pseudo_file_input').text($(this).val());" />
       </div>
       <input type="submit" name="form-submit" value="Reinvent it!" />
     </form>

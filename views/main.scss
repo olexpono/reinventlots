@@ -135,19 +135,62 @@ body {
         }
       }
     }
-    // #content {
-    section#start_the_discussion {
-      height: 54px;
-      padding: 8px 8px 0;
+    form {
+      .pseudo_file_input,
+      input[type="submit"] {
+        margin-bottom: 8px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1.4em;
+        line-height: 1.4em;
+        border: 1px solid $header-bg;
+        background-color: $theme-highlight;
+        padding: 2px 0;
+        color: $header-bg; //inverse
+        box-shadow: lightgray 1px 1px 2px;
+        text-shadow: #132 1px 1px 4px;
+      }
+      input[type="submit"] {
+        margin-top: 8px;
+        margin-left: 0px; // ???
+        padding: 2px 12px;
+      }
+      //CAREFUL BELOW
+      .file_input_wrapper,
+      .pseudo_file_input,
+      input[type="file"] {
+        // Careful!
+        width: 100%;
+      }
+      //CAREFUL ABOVE
       .file_input_wrapper {
         position: relative;
         .pseudo_file_input {
           position: absolute;
         }
         input[type="file"] {
+          cursor: pointer;
           opacity: 0;
           z-index: 1; // Above the pseudo input.
+          height: 29px;
         }
+      }
+    }
+    // #content {
+    section#start_the_discussion {
+      height: 54px;
+      padding: 8px 8px 0;
+      .form_header {
+        color: $theme-highlight;
+        font-size: 1.4em;
+      }
+      form {
+        margin-bottom: 9px;
+        border-bottom: 1px solid $theme-highlight;
+      }
+      #map-canvas {
+        width: 100%;
+        height: 380px;
       }
     }
   }
