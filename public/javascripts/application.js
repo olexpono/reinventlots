@@ -27,6 +27,11 @@ function Reinvent() {
   return this;
 }
 
+var fetchTweets = function(hashtag) {
+  $.getJSON("http://search.twitter.com/search.json?include_entities=true&rpp=12&result_type=recent&q=green&callback=?",
+         function(jsonData) {console.log(jsonData)});
+}
+
 Reinvent.modules = {};
 
 Reinvent.modules.app = function(reinvent) {
@@ -47,6 +52,7 @@ Reinvent.modules.app = function(reinvent) {
       this.maplayer = new reinvent.maplayer.Engine(this._map, {});
       this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
       this.datalayer = new reinvent.datalayer.Engine(this._map, {});
+      this.twitter = new reinvent.twitter.Engine("#rainbow");
       this.hash = null;
       //EXAMPLE call how to get data to make new profile page
     },
@@ -54,6 +60,7 @@ Reinvent.modules.app = function(reinvent) {
         this.hash = this.getHash();
         this.maplayer.run();
         this.imguruploader.run();
+        this.twitter.run();
         Reinvent.app.lot = new reinvent.lot.Engine({});
         Reinvent.app.lot.run();
         if (this.hash==null){
@@ -63,6 +70,7 @@ Reinvent.modules.app = function(reinvent) {
         } else {
             this.gotoHash(this.hash);
         }
+>>>>>>> 0d4f07c7d415912f9f1beeb8f65f5fe2c0ab55f3
         reinvent.log.info('app running');
         $("#userFormAdd").submit(function() {
           Reinvent.app.logImage($("#userFormAdd"));
@@ -181,6 +189,23 @@ Reinvent.modules.app = function(reinvent) {
   });
 };
 
+Reinvent.modules.twitter = function(reinvent) {
+    reinvent.twitter = {};
+    reinvent.twitter.Engine = Class.extend({
+        init: function(lotHashArg) {
+          this.lotHash = lotHashArg;
+        },
+        run: function() {
+        },
+        fetchTweets: function(hashtag, callback) {
+          $.getJSON("http://search.twitter.com/search.json?include_entities=true&rpp=12&result_type=recent" +
+                    "&q=" + encodeURI(hashtag) +
+                    "&callback=?",
+                    callback);
+        }
+    });
+} // + encodeURI(this.lotHash) +
+
 Reinvent.modules.imguruploader = function(reinvent) {
     reinvent.imguruploader = {};
     reinvent.imguruploader.Engine = Class.extend({
@@ -225,6 +250,13 @@ Reinvent.modules.lot = function(reinvent) {
             $('#fake-gallery #images').html('');
             this.getOverview(function(data){Reinvent.app.lot.populatePage(data)});
             this.getImages(function(data){Reinvent.app.lot.populateGallery(data)});
+            this.updateHash();
+        },
+        updateHash: function() {
+          Reinvent.app.twitter.fetchTweets(this.lotHash, this.renderTweet);
+        },
+        renderTweet: function(data) {
+          console.log(data);
         },
         getOverview: function(callback){
             $.ajax({

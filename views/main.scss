@@ -136,8 +136,8 @@ body {
       @media only screen and (min-width: 900px) {
         padding: 2em 0 36px;
         #main-image {
-          background-position: 50% 60%; // HACK HACK HACK.
-          zoom: 77%; // Screw photoshop, this is hack country.
+          background-position: 50% 0%; // HACK HACK HACK.
+          background-size: 100%; // Screw photoshop, this is hack country.
         }
         hgroup {
           font-size: 1em;
