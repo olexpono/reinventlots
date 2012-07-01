@@ -53,12 +53,24 @@ Reinvent.modules.app = function(reinvent) {
       this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
       this.datalayer = new reinvent.datalayer.Engine(this._map, {});
       this.twitter = new reinvent.twitter.Engine("#rainbow");
+      this.hash = null;
       //EXAMPLE call how to get data to make new profile page
     },
     run: function() {
+        this.hash = this.getHash();
         this.maplayer.run();
         this.imguruploader.run();
         this.twitter.run();
+        Reinvent.app.lot = new reinvent.lot.Engine({});
+        Reinvent.app.lot.run();
+        if (this.hash==null){
+            this.randomLot(function(data){
+                Reinvent.app.lot.gotoLot(data.rows[0].hash);
+            });
+        } else {
+            this.gotoHash(this.hash);
+        }
+>>>>>>> 0d4f07c7d415912f9f1beeb8f65f5fe2c0ab55f3
         reinvent.log.info('app running');
         $("#userFormAdd").submit(function() {
           Reinvent.app.logImage($("#userFormAdd"));
@@ -86,10 +98,35 @@ Reinvent.modules.app = function(reinvent) {
         $("#map_icon_link").click(function() {
           $("section#front_page").toggle();
         });
-        this.randomLot(function(data){
-            Reinvent.app.lot = new reinvent.lot.Engine(data.rows[0].hash, {});
-            Reinvent.app.lot.run();
+    },
+    gotoHash: function(hash){
+        this.hash = hash;
+        Reinvent.app.lot.gotoLot(this.hash);
+        var sql = "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, address, name, hash, imgur_small FROM "+this.options.table+" WHERE the_geom IS NOT NULL AND hash = '"+this.hash+"'";
+        $.ajax({
+          type: 'post',
+          dataType: 'json',
+          url: "http://"+this.options.domain+".cartodb.com/api/v2/sql?q="+sql,
+          success: function(data){Reinvent.app.loadLot(data)}
         });
+        //this.datalayer.gotoHash(this.hash);
+        //this.maplayer.gotoHash(this.hash);
+          // this.maplayer = new reinvent.maplayer.Engine(this._map, {});
+          // this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
+          // this.datalayer = new reinvent.datalayer.Engine(this._map, {});
+    },
+    loadLot: function(data){
+        if (data.rows.length==1){
+            var latLng = new google.maps.LatLng(data.rows[0]['lat'],data.rows[0]['lng']);
+            Reinvent.app.datalayer.clearMarkers();
+            Reinvent.app.datalayer.getNearestLots(function(data){Reinvent.app.datalayer.plotLots(data)}, this.hash);
+            Reinvent.app.maplayer.loadLot(latLng,data.rows[0]['address']);
+        }
+    },
+    getHash: function(){
+        var h = window.location.href.slice(window.location.href.indexOf('#')).replace('#','');
+        if (h=='/'){ h = null};
+        return h
     },
     randomLot: function(callback){
         // For use in the homepage to get a random-popular lot for gallery and display
@@ -198,14 +235,18 @@ Reinvent.modules.imguruploader = function(reinvent) {
 Reinvent.modules.lot = function(reinvent) {
     reinvent.lot = {};
     reinvent.lot.Engine = Class.extend({
-        init: function(lotHash, options) {
+        init: function(options) {
           this.options = _.defaults(options, {
               table: 'reinvent_lots',
               domain: 'ecohack12'
           });
-          this.lotHash = lotHash;
+          this.lotHash = null;
         },
         run: function(){
+        },
+        gotoLot: function(hash){
+            this.lotHash = hash;
+            $('#fake-gallery #images').html('');
             this.getOverview(function(data){Reinvent.app.lot.populatePage(data)});
             this.getImages(function(data){Reinvent.app.lot.populateGallery(data)});
             this.updateHash();
@@ -272,15 +313,19 @@ Reinvent.modules.datalayer = function(reinvent) {
           });
           this.markers = [];
         },
-        getSql: function(){
+        getSql: function(hash){
             var place_location = Reinvent.app.maplayer.getLocation();
-            return "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, address, name, hash, imgur_small FROM "+this.options.table+" WHERE the_geom IS NOT NULL ORDER BY the_geom <-> st_setsrid(st_makepoint("+place_location[1]+","+place_location[0]+"),4326) LIMIT "+this.options.nlots
+            var cond = '';
+            if (hash != null){
+                cond = " AND hash != '"+hash+"' ";
+            }
+            return "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, address, name, hash, imgur_small FROM "+this.options.table+" WHERE the_geom IS NOT NULL "+cond+" ORDER BY the_geom <-> st_setsrid(st_makepoint("+place_location[1]+","+place_location[0]+"),4326) LIMIT "+this.options.nlots
         },
-        getNearestLots: function(callback){
+        getNearestLots: function(callback, hash){
             $.ajax({
               type: 'post',
               dataType: 'json',
-              url: "http://"+this.options.domain+".cartodb.com/api/v2/sql?q="+this.getSql(),
+              url: "http://"+this.options.domain+".cartodb.com/api/v2/sql?q="+this.getSql(hash),
               success: callback
             });
         },
@@ -310,6 +355,7 @@ Reinvent.modules.maplayer = function(reinvent) {
             this.lat = null;
             this.lng = null;
             this.marker = null;
+            this.lotMarker = null; //for when in lotview
             this.address = null;
             this._geocoder = new google.maps.Geocoder();
             this._existing = "http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png";
@@ -321,6 +367,23 @@ Reinvent.modules.maplayer = function(reinvent) {
                 Reinvent.app.datalayer.plotLots(data);
             });
             this.addPinIcon();
+        },
+        loadLot: function(latLng,address){
+          // Pin is the user generated marker
+          if ( this.lotMarker ) {
+            this.lotMarker.setMap(null);
+            this.lotMarker = null;
+          }
+            this.lotMarker = new google.maps.Marker({
+              position: latLng,
+              map: this._map,
+              animation: google.maps.Animation.DROP,
+              draggable: false
+            });
+    	  this.lat = latLng.lat();
+    	  this.lng = latLng.lng();
+    	  Reinvent.app.maplayer.setAddress(address)
+          this._map.setCenter(latLng);
         },
         setupListeners: function(){
             // 
@@ -394,8 +457,14 @@ Reinvent.modules.maplayer = function(reinvent) {
             var newMarker = new google.maps.Marker({
               position: latLng,
               map: this._map,
-              icon: this._existing
+              icon: this._existing,
+              title: data.address
             });
+            newMarker.metadata = {hash: data.hash};
+            google.maps.event.addListener(newMarker, 'click', function(e) {
+                Reinvent.app.gotoHash(this.metadata['hash'])
+              });
+            
             return newMarker;
         },
         getLocation: function(position) {
