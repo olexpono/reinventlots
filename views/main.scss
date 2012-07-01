@@ -130,8 +130,9 @@ body {
         #fake-gallery {
           display: block;
           float: right;
-          margin-bottom: 1em;
-          width: 50%;
+          width: 43%;
+          padding: 12px;
+          background-color: $header-bg;
         }
       }
     }
@@ -141,8 +142,8 @@ body {
         margin-bottom: 8px;
         border-radius: 8px;
         text-align: center;
-        font-size: 1.4em;
-        line-height: 1.4em;
+        font-size: 1.2em;
+        line-height: 1.2em;
         border: 1px solid $header-bg;
         background-color: $theme-highlight;
         padding: 2px 0;
@@ -150,10 +151,26 @@ body {
         box-shadow: lightgray 1px 1px 2px;
         text-shadow: #132 1px 1px 4px;
       }
+      input[type="text"] {
+        text-align: center;
+        font-size: 1.2em;
+        line-height: 1.2em;
+        border: 1px solid $theme-highlight;
+        box-shadow: lightgray 1px 1px 2px;
+        border-radius: 8px;
+        width: 100%;
+      }
+      input[type="text"],
       input[type="submit"] {
+        display: block;
         margin-top: 8px;
         margin-left: 0px; // ???
         padding: 2px 12px;
+      }
+      input[type="submit"] {
+        width: 150px;
+        margin-left: auto;
+        margin-right: auto;
       }
       //CAREFUL BELOW
       .file_input_wrapper,
@@ -188,9 +205,29 @@ body {
         margin-bottom: 9px;
         border-bottom: 1px solid $theme-highlight;
       }
-      #map-canvas {
+      #map_canvas {
         width: 100%;
         height: 380px;
+      }
+      // DESKTOP # START THE DISCUSSION
+      @media only screen and (min-width: 900px) {
+        position: relative;
+        #imgur_upload {
+          padding-top: 20px;
+          float: left;
+          width: 410px;
+          .form_header {
+            font-weight: bold;
+            margin-bottom: 1em;
+          }
+        }
+        #map_wrapper {
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 426px;
+          height: 400px;
+        }
       }
     }
   }
