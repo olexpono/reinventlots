@@ -41,6 +41,7 @@ if ENV['CARTODB_KEY']
   CARTODB_CONF['api_key'] = ENV['CARTODB_KEY']
   CARTODB_CONF['locations_table'] = ENV['CARTODB_LOCTABLE']
   CARTODB_CONF['post_url'] = ENV['CARTODB_POSTURL']
+  CARTODB_CONF['host'] = ENV['CARTODB_HOST']
 else
   CARTODB_CONF = YAML::load(File.read('config/cartodb_config.yml'))
 end
