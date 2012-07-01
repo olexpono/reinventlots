@@ -116,7 +116,7 @@ body {
         text-shadow: $text-color 1px 1px 3px;
       }
       #fake-gallery { display: none; }
-      // DESKTOP # FRONT PAGE
+      // DESKTOP # FRONT PAGE SECTION
       @media only screen and (min-width: 900px) {
         #main-image {
           background-position: 50% 60%; // HACK HACK HACK.
@@ -132,6 +132,21 @@ body {
           float: right;
           margin-bottom: 1em;
           width: 50%;
+        }
+      }
+    }
+    // #content {
+    section#start_the_discussion {
+      height: 54px;
+      padding: 8px 8px 0;
+      .file_input_wrapper {
+        position: relative;
+        .pseudo_file_input {
+          position: absolute;
+        }
+        input[type="file"] {
+          opacity: 0;
+          z-index: 1; // Above the pseudo input.
         }
       }
     }
