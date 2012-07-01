@@ -83,13 +83,16 @@ Reinvent.modules.app = function(reinvent) {
         reinvent.log.info(form);
         reinvent.log.info('blocked');
     },
+    getName: function(){
+        return $('#place_name').val();
+    },
     createPlace: function(form, imgur_data) {
       reinvent.log.info('Uploaded to imgur! ' + imgur_data.upload.links.imgur_page);
       var create_params = {};
       var place_location = Reinvent.app.maplayer.getLocation();
       create_params["lat"] = place_location[0];
       create_params["lng"] = place_location[1];
-      create_params["name"] = "TODO: Place Names";
+      create_params["name"] = this.getName();
       create_params["address"] = Reinvent.app.maplayer.getAddress();
       create_params["orig"] = imgur_data.upload.links.original;
       create_params["small"] = imgur_data.upload.links.large_thumbnail;
