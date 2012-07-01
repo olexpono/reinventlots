@@ -65,8 +65,8 @@ post '/api/create' do
   if JSON.parse(y.body)['rows'].first['count'].to_i>0
     {"error"=>"Location already exists"}.to_json
   else
-  
-    map['hash'] = "RL-#{ActiveSupport::SecureRandom.base64(4).gsub("/","_").gsub(/=+$/,"")}"
+    chars = ['A'..'Z', 'a'..'z', '0'..'9'].map{|r|r.to_a}.flatten
+    map['hash'] = "RL#{Array.new(6).map{chars[rand(chars.size)]}.join}"
     map['created'] = Time.now.getutc
     
     sql = "INSERT INTO #{CARTODB_CONF['locations_table']}(the_geom, hash, name, description, address, imgur_orig, imgur_small, imgur_thumb) VALUES (ST_SetSRID(ST_MakePoint(#{map['lng']},#{map['lat']}),4326), '#{map['hash']}', '#{map['name']}', '#{map['desc']}', '#{map['address']}', '#{map['orig']}', '#{map['small']}', '#{map['thumb']}')"
