@@ -64,6 +64,9 @@ Reinvent.modules.app = function(reinvent) {
           );
           return false; // prevents actual HTTP submit
         });
+        $("#map_icon_link").click(function() {
+          $("section#front_page").toggle();
+        });
         this.randomLot(function(data){
             Reinvent.app.lot = new reinvent.lot.Engine(data.rows[0].hash, {});
             Reinvent.app.lot.run();
