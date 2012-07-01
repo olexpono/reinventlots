@@ -101,6 +101,7 @@ Reinvent.modules.app = function(reinvent) {
     gotoHash: function(hash){
         this.hash = hash;
         Reinvent.app.lot.gotoLot(this.hash);
+        location.hash = "#"+this.hash;
         var sql = "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, address, name, hash, imgur_small FROM "+this.options.table+" WHERE the_geom IS NOT NULL AND hash = '"+this.hash+"'";
         $.ajax({
           type: 'post',
@@ -358,7 +359,8 @@ Reinvent.modules.maplayer = function(reinvent) {
             this.lotMarker = null; //for when in lotview
             this.address = null;
             this._geocoder = new google.maps.Geocoder();
-            this._existing = "http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png";
+            this._surrounding = "/images/markerR_alt.png";
+            this._central = "/images/markerR.png";
         },
         run: function(){
             this.panToUser();
@@ -378,6 +380,7 @@ Reinvent.modules.maplayer = function(reinvent) {
               position: latLng,
               map: this._map,
               animation: google.maps.Animation.DROP,
+              icon: this._central,
               draggable: false
             });
     	  this.lat = latLng.lat();
@@ -407,6 +410,9 @@ Reinvent.modules.maplayer = function(reinvent) {
         },
         dropPin: function(){
           var latLng = this._map.getCenter();
+          
+            Reinvent.app.datalayer.clearMarkers();
+            Reinvent.app.datalayer.getNearestLots(function(data){Reinvent.app.datalayer.plotLots(data)}, this.hash);
           // Pin is the user generated marker
           if ( this.marker ) {
             this.marker.setPosition(latLng);
@@ -415,7 +421,8 @@ Reinvent.modules.maplayer = function(reinvent) {
               position: latLng,
               map: this._map,
               animation: google.maps.Animation.DROP,
-              draggable: true
+              icon: this._central,
+              draggable: false
             });
           }
           
@@ -457,7 +464,7 @@ Reinvent.modules.maplayer = function(reinvent) {
             var newMarker = new google.maps.Marker({
               position: latLng,
               map: this._map,
-              icon: this._existing,
+              icon: this._surrounding,
               title: data.address
             });
             newMarker.metadata = {hash: data.hash};
@@ -475,6 +482,8 @@ Reinvent.modules.maplayer = function(reinvent) {
             $(controlDiv).css({'cursor': 'pointer',
                               'textAlign': 'center',
                               'background': 'none',
+                              'margin-right': '3px',
+                              'margin-top': '3px',
                               'filter': 'alpha (opacity=50)'});
             controlDiv.title = 'Drop pin';
             var controlUI = document.createElement('div');
@@ -486,9 +495,9 @@ Reinvent.modules.maplayer = function(reinvent) {
             controlDiv.appendChild(controlUI);
             controlDiv.index = 1;
             var control = $('<img />');
-            control.attr('src','/images/drop-pin.png');
+            control.attr('src','/images/dropR.png');
             control.attr('alt','drop pin');
-            control.css({'height': '40px', 'width': '40px'});
+            control.css({'height': '30px', 'width': '30px'});
             $(controlDiv).append(control);
             google.maps.event.addDomListener(controlDiv, 'click', function(event) {
                 reinvent.log.info('drop clicked');
