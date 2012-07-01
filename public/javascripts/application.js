@@ -41,8 +41,9 @@ Reinvent.modules.app = function(reinvent) {
       });
       reinvent.log.enabled = options ? options.logging: false;
       this._map = map;
-      this.maplayer = new reinvent.maplayer.Engine(this._map, {})
-      this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id)
+      this.maplayer = new reinvent.maplayer.Engine(this._map, {});
+      this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
+      this.datalayer = new reinvent.datalayer.Engine(this._map, {});
     },
     run: function() {
         this.maplayer.run();
@@ -114,6 +115,38 @@ Reinvent.modules.imguruploader = function(reinvent) {
     });
 }
 
+Reinvent.modules.datalayer = function(reinvent) {
+    reinvent.datalayer = {};
+    reinvent.datalayer.Engine = Class.extend({
+        init: function(options) {
+          this.options = _.defaults(options, {
+              nlots: 10,
+              table: 'reinvent_lots',
+              domain: 'ecohack12'
+          });
+          this.markers = [];
+        },
+        getSql: function(){
+            return "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat FROM "+this.options.table+" WHERE the_geom IS NOT NULL LIMIT "+this.options.nlots
+        },
+        getNearestLots: function(callback){
+            $.ajax({
+              type: 'post',
+              dataType: 'json',
+              url: "http://"+this.options.domain+".cartodb.com/api/v2/sql?q="+this.getSql(),
+              success: callback
+            });
+        },
+        plotLots: function(lots){
+            for (var i=0; i<lots.rows.length; i++){
+                var marker = Reinvent.app.maplayer.newMarker(lots.rows[i]);
+                console.log(marker)
+                this.markers.push(marker);
+            }
+        }
+    });
+}
+
 Reinvent.modules.maplayer = function(reinvent) {
     reinvent.maplayer = {};
     reinvent.maplayer.Engine = Class.extend({
@@ -126,14 +159,19 @@ Reinvent.modules.maplayer = function(reinvent) {
             this.marker = null;
             this.address = null;
             this._geocoder = new google.maps.Geocoder();
+            this._existing = "http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png";
         },
         run: function(){
             this.panToUser();
             this.setupListeners();
+            Reinvent.app.datalayer.getNearestLots(function(data) {
+                Reinvent.app.datalayer.plotLots(data);
+            });
         },
         setupListeners: function(){
+            //TODO remove the below when we have a button for Drop Pin
             google.maps.event.addListener(this._map, 'click', function(event) {
-              Reinvent.app.maplayer.dropPin(event.latLng);
+              Reinvent.app.maplayer.dropPin();
             });
         },
         setAddress: function(address){
@@ -142,15 +180,27 @@ Reinvent.modules.maplayer = function(reinvent) {
         getAddress: function(){
             return this.address
         },
-        dropPin: function(latLng){
+        centerPin: function(latLng){
+          this.marker.setPosition(this._map.getCenter());  
+        },
+        dropPin: function(){
+          var latLng = this._map.getCenter();
+          // Pin is the user generated marker
           if ( this.marker ) {
             this.marker.setPosition(latLng);
           } else {
             this.marker = new google.maps.Marker({
               position: latLng,
-              map: this._map
+              map: this._map,
+              animation: google.maps.Animation.DROP,
+              draggable: true
             });
           }
+          
+          google.maps.event.addListener(this._map, 'dragend', function() {
+              Reinvent.app.maplayer.centerPin();
+          });
+          
     	  this.lat = latLng.lat();
     	  this.lng = latLng.lng();
           this._geocoder.geocode({location: latLng}, function(addresses){
@@ -180,8 +230,16 @@ Reinvent.modules.maplayer = function(reinvent) {
         locationFail: function(position){
             // pass
         },
+        newMarker: function(data){
+		    var latLng = new google.maps.LatLng(data.lat, data.lng);
+            var newMarker = new google.maps.Marker({
+              position: latLng,
+              map: this._map,
+              icon: this._existing
+            });
+            return newMarker;
+        },
         getLocation: function(position) {
-            console.log(this.lat, this.lng)
           return [this.lat, this.lng];
         },
     });
