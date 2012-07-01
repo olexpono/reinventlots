@@ -27,6 +27,11 @@ function Reinvent() {
   return this;
 }
 
+var fetchTweets = function(hashtag) {
+  $.getJSON("http://search.twitter.com/search.json?include_entities=true&rpp=12&result_type=recent&q=green&callback=?",
+         function(jsonData) {console.log(jsonData)});
+}
+
 Reinvent.modules = {};
 
 Reinvent.modules.app = function(reinvent) {
@@ -47,11 +52,13 @@ Reinvent.modules.app = function(reinvent) {
       this.maplayer = new reinvent.maplayer.Engine(this._map, {});
       this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
       this.datalayer = new reinvent.datalayer.Engine(this._map, {});
+      this.twitter = new reinvent.twitter.Engine("#rainbow");
       //EXAMPLE call how to get data to make new profile page
     },
     run: function() {
         this.maplayer.run();
         this.imguruploader.run();
+        this.twitter.run();
         reinvent.log.info('app running');
         $("#userFormAdd").submit(function() {
           Reinvent.app.logImage($("#userFormAdd"));
@@ -144,6 +151,23 @@ Reinvent.modules.app = function(reinvent) {
   });
 };
 
+Reinvent.modules.twitter = function(reinvent) {
+    reinvent.twitter = {};
+    reinvent.twitter.Engine = Class.extend({
+        init: function(lotHashArg) {
+          this.lotHash = lotHashArg;
+        },
+        run: function() {
+        },
+        fetchTweets: function(hashtag, callback) {
+          $.getJSON("http://search.twitter.com/search.json?include_entities=true&rpp=12&result_type=recent" +
+                    "&q=" + encodeURI(hashtag) +
+                    "&callback=?",
+                    callback);
+        }
+    });
+} // + encodeURI(this.lotHash) +
+
 Reinvent.modules.imguruploader = function(reinvent) {
     reinvent.imguruploader = {};
     reinvent.imguruploader.Engine = Class.extend({
@@ -184,6 +208,13 @@ Reinvent.modules.lot = function(reinvent) {
         run: function(){
             this.getOverview(function(data){Reinvent.app.lot.populatePage(data)});
             this.getImages(function(data){Reinvent.app.lot.populateGallery(data)});
+            this.updateHash();
+        },
+        updateHash: function() {
+          Reinvent.app.twitter.fetchTweets(this.lotHash, this.renderTweet);
+        },
+        renderTweet: function(data) {
+          console.log(data);
         },
         getOverview: function(callback){
             $.ajax({
