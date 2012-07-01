@@ -160,10 +160,14 @@ Reinvent.modules.app = function(reinvent) {
       $.ajax({
         type: "POST",
         url: "/api/create",
+        dataType: "json",
         data:  create_params,//JSON.stringify(create_params)
-      }).done( function(data) {
-        //TODO go to the page for the new hash
-        reinvent.log.info("created! :: lot = " + data.hash);
+        success: function(data) {
+            console.log(data)
+            //TODO go to the page for the new hash
+            reinvent.log.info("added! :: lot = " + data.hash);
+            Reinvent.app.gotoHash(data.hash);
+        }
       });
     },
     addToPlace: function(form, imgur_data) {
@@ -180,10 +184,11 @@ Reinvent.modules.app = function(reinvent) {
         type: "POST",
         url: "/api/add",
         data:  create_params,//JSON.stringify(create_params)
-      }).done( function(data) {
+        success: function(data) {
         //TODO go to the page for the new hash
         reinvent.log.info("added! :: lot = " + data.hash);
-      });
+      }
+      })
     }
   });
 };
