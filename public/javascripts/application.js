@@ -41,13 +41,16 @@ Reinvent.modules.app = function(reinvent) {
       });
       reinvent.log.enabled = options ? options.logging: false;
       this._map = map;
+      //TODO we can split each of these up, to run only what we need for a particular view
       this.maplayer = new reinvent.maplayer.Engine(this._map, {});
       this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
       this.datalayer = new reinvent.datalayer.Engine(this._map, {});
+      this.lot = new reinvent.lot.Engine('RL-xTR93w', {});
     },
     run: function() {
         this.maplayer.run();
         this.imguruploader.run();
+        this.lot.run();
         reinvent.log.info('app running');
         $("#userForm").submit(function() {
           Reinvent.app.logImage($("#userForm"));
@@ -115,6 +118,58 @@ Reinvent.modules.imguruploader = function(reinvent) {
     });
 }
 
+Reinvent.modules.lot = function(reinvent) {
+    reinvent.lot = {};
+    reinvent.lot.Engine = Class.extend({
+        init: function(lotHash, options) {
+          this.options = _.defaults(options, {
+              table: 'reinvent_lots',
+              domain: 'ecohack12'
+          });
+          this.lotHash = lotHash;
+        },
+        run: function(){
+            this.getOverview(function(data){Reinvent.app.lot.populatePage(data)});
+            this.getImages(function(data){Reinvent.app.lot.populateGallery(data)});
+        },
+        getOverview: function(callback){
+            $.ajax({
+              type: 'post',
+              dataType: 'json',
+              url: "http://"+this.options.domain+".cartodb.com/api/v2/sql?q="+this._overviewSql(),
+              success: callback
+            });
+        },
+        populatePage: function(data){
+            // TODO fill title etc dom with this information
+            console.log(data.rows[0].name + ": " + data.rows[0].address );
+        },
+        getImages: function(callback){
+            $.ajax({
+              type: 'post',
+              dataType: 'json',
+              url: "http://"+this.options.domain+".cartodb.com/api/v2/sql?q="+this._imagesSql(),
+              success: callback
+            });
+        },
+        populateGallery: function(data){
+            // TODO fill gallery dom with this information
+            for (var i = 0; i<data.rows.length; i++){
+                console.log("Small: "+data.rows[i].imgur_small);
+                console.log("Large: "+data.rows[i].imgur_large);
+                console.log("Original: "+data.rows[i].imgur_orig);
+            }
+        },
+        _imagesSql: function(){
+            return "SELECT cartodb_id, ST_X(the_geom) lng, ST_Y(the_geom) lat, hash, imgur_small, imgur_thumb, imgur_orig FROM "+this.options.table+" WHERE hash = '"+this.lotHash+"' AND the_geom IS NOT NULL ORDER BY created_at desc"
+        },
+        _overviewSql: function(){
+            return "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, hash, address, name FROM "+this.options.table+" WHERE hash = '"+this.lotHash+"' AND the_geom IS NOT NULL ORDER BY created_at asc LIMIT 1"
+        }
+    });
+}
+
+
 Reinvent.modules.datalayer = function(reinvent) {
     reinvent.datalayer = {};
     reinvent.datalayer.Engine = Class.extend({
@@ -127,7 +182,8 @@ Reinvent.modules.datalayer = function(reinvent) {
           this.markers = [];
         },
         getSql: function(){
-            return "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat FROM "+this.options.table+" WHERE the_geom IS NOT NULL LIMIT "+this.options.nlots
+            var place_location = Reinvent.app.maplayer.getLocation();
+            return "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, address, name, hash, imgur_small FROM "+this.options.table+" WHERE the_geom IS NOT NULL ORDER BY the_geom <-> st_setsrid(st_makepoint("+place_location[1]+","+place_location[0]+"),4326) LIMIT "+this.options.nlots
         },
         getNearestLots: function(callback){
             $.ajax({
@@ -140,9 +196,15 @@ Reinvent.modules.datalayer = function(reinvent) {
         plotLots: function(lots){
             for (var i=0; i<lots.rows.length; i++){
                 var marker = Reinvent.app.maplayer.newMarker(lots.rows[i]);
-                console.log(marker)
                 this.markers.push(marker);
             }
+        },
+        clearMarkers: function(){
+            for (var i=0;i<this.markers.length;i++){
+                this.markers[i].setMap(null);
+                delete this.markers[i]
+            }
+            this.markers = [];
         }
     });
 }
@@ -181,8 +243,9 @@ Reinvent.modules.maplayer = function(reinvent) {
             return this.address
         },
         centerPin: function(latLng){
-          this.marker.setAnimation(google.maps.Animation.BOUNCE)
           this.marker.setPosition(this._map.getCenter());  
+    	  this.lat = this._map.getCenter().lat();
+    	  this.lng = this._map.getCenter().lng();
         },
         dropPin: function(){
           var latLng = this._map.getCenter();
