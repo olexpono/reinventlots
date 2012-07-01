@@ -70,7 +70,6 @@ Reinvent.modules.app = function(reinvent) {
         } else {
             this.gotoHash(this.hash);
         }
->>>>>>> 0d4f07c7d415912f9f1beeb8f65f5fe2c0ab55f3
         reinvent.log.info('app running');
         $("#userFormAdd").submit(function() {
           Reinvent.app.logImage($("#userFormAdd"));
