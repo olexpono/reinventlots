@@ -9,7 +9,6 @@ $text-color: #000;
 $bg-color: #fff;
 $header-bg: whiteSmoke;
 $theme-highlight: #5C832F;
-$desktop-shoutout-color: lighten($theme-highlight, 20);
 
 // FONTS
 
@@ -124,10 +123,9 @@ body {
           zoom: 77%; // Screw photoshop, this is hack country.
         }
         hgroup {
-          color: $desktop-shoutout-color;
-          text-shadow: $bg-color 1px 1px 2px;
           margin-top: 4em;
-          margin-left: 4em;
+          margin-left: 11em;
+          max-width: 75%;
         }
         #fake-gallery {
           display: block;
