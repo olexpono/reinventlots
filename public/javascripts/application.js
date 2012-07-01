@@ -271,6 +271,36 @@ Reinvent.modules.lot = function(reinvent) {
             $('#fake-gallery #name').html(data.rows[0].name);
             $('#fake-gallery #address').html(data.rows[0].address);
             $("#twitter_actions").html("<a href='https://twitter.com/intent/tweet?hashtags="+ encodeURI(this.lotHash) +"'>Tweet about "+ data.rows[0].name +"</a>");
+            window.latestHash = this.lotHash;
+            $.getScript('http://widgets.twimg.com/j/2/widget.js', function () {
+                new TWTR.Widget({
+                version: 2,
+                type: 'search',
+                id : 'twitter_feed',
+                search: '#' + window.latestHash,
+                rpp: 4,
+                interval: 3000,
+                width: 'auto',
+                height: 'auto',
+                theme: {
+                shell: {
+                    background: 'transparent', //this is important
+                    color: '#333'
+                },
+                tweets: {
+                  background: 'transparent', //this is important
+                      color: '#666',
+                  links: '#d14836'
+                }
+                },
+                features: {
+                scrollbar: false,
+                loop: true,
+                live: true,
+                behavior: 'default'
+                }
+                }).render().start();
+                });
         },
         getImages: function(callback){
             $.ajax({
