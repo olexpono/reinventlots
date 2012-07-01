@@ -96,11 +96,12 @@ body {
   }
   #content {
     section {
-      padding: 2em 0 36px;
     }
     section#front_page {
+      padding: 1em 0 20px;
       position: relative;
       overflow: hidden;
+      margin-bottom: 8px;
       #main-image { // floats behind rest of section
         position: absolute;
         z-index: -1;
@@ -111,6 +112,7 @@ body {
         top: 0;
       }
       hgroup {
+        font-size: 0.8em;
         margin: 0 0.5em;
         color: $bg-color; // inverse!
         text-shadow: $text-color 1px 1px 3px;
@@ -118,11 +120,13 @@ body {
       #fake-gallery { display: none; }
       // DESKTOP # FRONT PAGE SECTION
       @media only screen and (min-width: 900px) {
+        padding: 2em 0 36px;
         #main-image {
           background-position: 50% 60%; // HACK HACK HACK.
           zoom: 77%; // Screw photoshop, this is hack country.
         }
         hgroup {
+          font-size: 1em;
           margin-top: 4em;
           margin-left: 11em;
           max-width: 75%;
@@ -207,7 +211,7 @@ body {
       }
       #map_canvas {
         width: 100%;
-        height: 380px;
+        height: 320px;
       }
       // DESKTOP # START THE DISCUSSION
       @media only screen and (min-width: 900px) {
@@ -226,7 +230,7 @@ body {
           right: 0;
           top: 0;
           width: 426px;
-          height: 400px;
+          height: 340px;
         }
       }
     }
