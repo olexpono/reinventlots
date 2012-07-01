@@ -104,6 +104,9 @@ body {
       height: 48px;
       padding: 7px;
     }
+    @media only screen and (min-width: 900px) {
+      #map_icon { display: none; }
+    }
   }
   #content {
     section {
