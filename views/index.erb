@@ -52,7 +52,12 @@
 		    mapTypeId: google.maps.MapTypeId.SATELLITE,
 		    mapTypeControl: false
 		});
+		
+        var map_style = {};
+        map_style.google_maps_customization_style =  [ { featureType: "administrative", elementType: "geometry", stylers: [ { invert_lightness: true }, { lightness: 84 }, { gamma: 1.96 }, { saturation: -41 } ] },{ elementType: "labels.icon", stylers: [ { weight: 0.5 }, { lightness: -35 }, { visibility: "off" } ] },{ featureType: "road", stylers: [ { invert_lightness: true }, { weight: 1.6 }, { lightness: -14 }, { saturation: -2 } ] },{ featureType: "road", elementType: "labels.text", stylers: [ { visibility: "on" }, { lightness: -24 }, { saturation: -94 }, { invert_lightness: true } ] },{ featureType: "administrative", elementType: "labels", stylers: [ { visibility: "off" } ] },{ featureType: "road", elementType: "geometry", stylers: [ { invert_lightness: true }, { saturation: -78 }, { lightness: 6 }, { gamma: 0.88 } ] } ];
         map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+        map.setOptions({styles: map_style.google_maps_customization_style});
+
 		Reinvent(function(env) {
 		  Reinvent.app = new env.app.Instance(map, {
 		        logging       : true,
