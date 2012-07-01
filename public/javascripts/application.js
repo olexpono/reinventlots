@@ -94,6 +94,7 @@ Reinvent.modules.app = function(reinvent) {
     gotoHash: function(hash){
         this.hash = hash;
         Reinvent.app.lot.gotoLot(this.hash);
+        location.hash = "#"+this.hash;
         var sql = "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, address, name, hash, imgur_small FROM "+this.options.table+" WHERE the_geom IS NOT NULL AND hash = '"+this.hash+"'";
         $.ajax({
           type: 'post',
