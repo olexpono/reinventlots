@@ -54,9 +54,10 @@ Reinvent.modules.app = function(reinvent) {
         this.imguruploader.run();
         reinvent.log.info('app running');
         $("#userFormAdd").submit(function() {
-          Reinvent.app.logImage($("#userForm"));
+          Reinvent.app.logImage($("#userFormAdd"));
           var imgur_callback = function(imgur_data) {
             //TODO add new image to gallery
+            Reinvent.app.addToPlace(this, imgur_data);
           }
           Reinvent.app.imguruploader.addImage(
               $("#imgur_upload input[type=file]")[0].files[0],
@@ -65,9 +66,9 @@ Reinvent.modules.app = function(reinvent) {
           return false; // prevents actual HTTP submit
         });
         $("#userForm").submit(function() {
-          Reinvent.app.logImage($("#userFormAdd"));
+          Reinvent.app.logImage($("#userForm"));
           var imgur_callback = function(imgur_data) {
-            Reinvent.app.loadPlace(this, imgur_data);
+            Reinvent.app.createPlace(this, imgur_data);
           }
           Reinvent.app.imguruploader.uploadImage(
               $("#imgur_upload input[type=file]")[0].files[0],
@@ -114,7 +115,27 @@ Reinvent.modules.app = function(reinvent) {
         url: "/api/create",
         data:  create_params,//JSON.stringify(create_params)
       }).done( function(data) {
-        reinvent.log.info("created! :: data = " + data);
+        //TODO go to the page for the new hash
+        reinvent.log.info("created! :: lot = " + data.hash);
+      });
+    },
+    addToPlace: function(form, imgur_data) {
+      reinvent.log.info('Uploaded to imgur! ' + imgur_data.upload.links.imgur_page);
+      var create_params = {};
+      var place_location = Reinvent.app.maplayer.getLocation();
+      create_params["lat"] = place_location[0];
+      create_params["lng"] = place_location[1];
+      create_params["orig"] = imgur_data.upload.links.original;
+      create_params["small"] = imgur_data.upload.links.large_thumbnail;
+      create_params["thumb"] = imgur_data.upload.links.small_square;
+      reinvent.log.info(create_params)
+      $.ajax({
+        type: "POST",
+        url: "/api/add",
+        data:  create_params,//JSON.stringify(create_params)
+      }).done( function(data) {
+        //TODO go to the page for the new hash
+        reinvent.log.info("added! :: lot = " + data.hash);
       });
     }
   });
