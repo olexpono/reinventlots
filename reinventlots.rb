@@ -35,8 +35,17 @@ get '/css/main.css' do
 end
 
 
-#CARTODB_CONF = YAML.load_file(Rails.root.join('config/cartodb_config.yml'))[RAILS_ENV]
-CARTODB_CONF = YAML::load(File.read('config/cartodb_config.yml'))
+if ENV['CARTODB_KEY']
+  # LOAD CARTO_CONF from ENV variables
+  CARTODB_CONF = {}
+  CARTODB_CONF['api_key'] = ENV['CARTODB_KEY']
+  CARTODB_CONF['locations_table'] = ENV['CARTODB_LOCTABLE']
+  CARTODB_CONF['post_url'] = ENV['CARTODB_POSTURL']
+  CARTODB_CONF['host'] = ENV['CARTODB_HOST']
+else
+  CARTODB_CONF = YAML::load(File.read('config/cartodb_config.yml'))
+end
+
 def quote_string astr
   return astr.gsub(/\A['"]+|['"]+\Z/, "").gsub(/\\/, '\&\&').gsub(/'/, "''").gsub(';',' ')
 end
