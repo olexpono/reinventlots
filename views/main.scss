@@ -80,6 +80,7 @@ body {
   background-color: $bg-color;
   background: url('/images/cubes.png');
   > header {
+    position: relative;
     margin-bottom: .6em;
     background-color: $header-bg;
     border-bottom: 1px solid $theme-highlight;
@@ -92,6 +93,19 @@ body {
       background-size: 72%;
       height: 62px;
       max-width: 350px;
+    }
+    #map_icon_link, #map_icon {
+      cursor: pointer;
+    }
+    #map_icon {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 48px;
+      padding: 7px;
+    }
+    @media only screen and (min-width: 900px) {
+      #map_icon { display: none; }
     }
   }
   #content {
