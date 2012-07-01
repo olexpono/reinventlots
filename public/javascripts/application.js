@@ -56,7 +56,18 @@ Reinvent.modules.app = function(reinvent) {
         $("#userForm").submit(function() {
           Reinvent.app.logImage($("#userForm"));
           var imgur_callback = function(imgur_data) {
-            Reinvent.app.createPlace(this, imgur_data);
+            //TODO add new image to gallery
+          }
+          Reinvent.app.imguruploader.addImage(
+              $("#imgur_upload input[type=file]")[0].files[0],
+              imgur_callback
+          );
+          return false; // prevents actual HTTP submit
+        });
+        $("#userFormAdd").submit(function() {
+          Reinvent.app.logImage($("#userFormAdd"));
+          var imgur_callback = function(imgur_data) {
+            Reinvent.app.loadPlace(this, imgur_data);
           }
           Reinvent.app.imguruploader.uploadImage(
               $("#imgur_upload input[type=file]")[0].files[0],

@@ -29,6 +29,21 @@
     <div id='map_canvas'></div>
   </div>
 </section>
+<section>
+<section id="add_new_photo">
+  <div id='imgur_upload' >
+    <div class="form_header">Have more photos? <div>Add them here...</div></div>
+    <form id="userForm" enctype="multipart/form-data" data-remote="true" data-ajax="false">
+      <input type="hidden" name="key" value="3e1abddad6fba082f7d20aa9ea3ef783" />
+      <div class="file_input_wrapper">
+        <div class="pseudo_file_input">Start by Uploading a Photo</div>
+        <input type="file" name="image" onchange="$('#pseudo_file_input').text($(this).val());" />
+      </div>
+      <input type="text" id="place_name" name="place_name" placeholder="What's the common name for this place?" />
+      <input type="submit" name="form-submit" value="Reinvent it!" />
+    </form>
+  </div>
+</section>
 <script>
 		// initialise the google map
 		var map = new google.maps.Map(document.getElementById('map_canvas'), {
