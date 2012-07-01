@@ -36,7 +36,9 @@ Reinvent.modules.app = function(reinvent) {
   reinvent.app.Instance = Class.extend({
     init: function(map, options) {
       this.options = _.defaults(options, {
-          logging: false
+          logging: false,
+          table: 'reinvent_lots',
+          domain: 'ecohack12'
       });
       reinvent.log.enabled = options ? options.logging: false;
       reinvent.log.info('app init');
@@ -63,14 +65,13 @@ Reinvent.modules.app = function(reinvent) {
           return false; // prevents actual HTTP submit
         });
         this.randomLot(function(data){
-            console.log('db')
-            Reinvent.app.lot = new reinvent.lot.Engine(data.rows[0].hash);
+            Reinvent.app.lot = new reinvent.lot.Engine(data.rows[0].hash, {});
             Reinvent.app.lot.run();
         });
     },
     randomLot: function(callback){
-        var sql = "WITH f AS (SELECT hash, count(*) c, random() r FROM "+this.options.table+" ORDER BY c desc LIMIT 5) SELECT hash FROM f ORDER BY r LIMIT 1";
-        console.log(sql)
+        // For use in the homepage to get a random-popular lot for gallery and display
+        var sql = "WITH f AS (SELECT hash, count(*) c, random() r FROM "+this.options.table+" GROUP BY hash  ORDER BY c desc LIMIT 6) SELECT hash FROM f ORDER BY r LIMIT 1";
         $.ajax({
           type: 'post',
           dataType: 'json',
