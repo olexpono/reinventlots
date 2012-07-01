@@ -269,6 +269,7 @@ Reinvent.modules.lot = function(reinvent) {
             reinvent.log.info(data.rows[0].name + ": " + data.rows[0].address );
             $('#fake-gallery #name').html(data.rows[0].name);
             $('#fake-gallery #address').html(data.rows[0].address);
+            $("#twitter_actions").html("<a href='https://twitter.com/intent/tweet?hashtags="+ encodeURI(this.lotHash) +"'>Tweet about "+ data.rows[0].name +"</a>");
         },
         getImages: function(callback){
             $.ajax({
