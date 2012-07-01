@@ -1,13 +1,20 @@
 <div >	
-	<p> Lorem ipsum index </p>
-	<div id='imgur_upload' style="width: 100%; height: 50px;">
-		<form id="userForm" enctype="multipart/form-data" data-remote="true" data-ajax="false">
-  		<input type="hidden" name="key" value="3e1abddad6fba082f7d20aa9ea3ef783" />
-  		<input type="file" name="image" />
-		<input type="submit" name="form-submit" value="Send" />
-		</form>
+	<div id="left" style="width: 50%; float: left;">
+		<p> Lorem ipsum index </p>
+		<div id='imgur_upload' style="height: 50px; float: left;">
+			<form id="userForm" enctype="multipart/form-data" data-remote="true" data-ajax="false">
+	  		<input type="hidden" name="key" value="3e1abddad6fba082f7d20aa9ea3ef783" />
+	  		<input type="file" name="image" />
+			<input type="submit" name="form-submit" value="Send" />
+			</form>
+		</div>
 	</div>
-	<div id='map_canvas' style="width: 100%; height: 400px;"></div>
+	<div id='fake-gallery' style="width: 50%; float: right;margin-bottom: 5px;">
+		<div id="name" style="width: 100%; float:left;"></div>
+		<div id="address" style="width: 100%; float:left; font-size: 0.8em"></div>
+		<div id="images" style="width: 100%; float: left"></div>
+	</div>
+	<div id='map_canvas' style="width: 100%; height: 400px; "></div>
 </div>
 <script>
 		// initialise the google map

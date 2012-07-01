@@ -45,7 +45,8 @@ Reinvent.modules.app = function(reinvent) {
       this.maplayer = new reinvent.maplayer.Engine(this._map, {});
       this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
       this.datalayer = new reinvent.datalayer.Engine(this._map, {});
-      this.lot = new reinvent.lot.Engine('RL-xTR93w', {});
+      //EXAMPLE call how to get data to make new profile page
+      this.lot = new reinvent.lot.Engine('RL-2dGLAA', {});
     },
     run: function() {
         this.maplayer.run();
@@ -143,6 +144,8 @@ Reinvent.modules.lot = function(reinvent) {
         populatePage: function(data){
             // TODO fill title etc dom with this information
             console.log(data.rows[0].name + ": " + data.rows[0].address );
+            $('#fake-gallery #name').html(data.rows[0].name);
+            $('#fake-gallery #address').html(data.rows[0].address);
         },
         getImages: function(callback){
             $.ajax({
@@ -155,13 +158,14 @@ Reinvent.modules.lot = function(reinvent) {
         populateGallery: function(data){
             // TODO fill gallery dom with this information
             for (var i = 0; i<data.rows.length; i++){
-                console.log("Small: "+data.rows[i].imgur_small);
-                console.log("Large: "+data.rows[i].imgur_large);
-                console.log("Original: "+data.rows[i].imgur_orig);
+                console.log("Thumb: "+data.rows[i].imgur_thumb);
+                var img = new Image();
+                img.src=data.rows[i].imgur_thumb;
+                $('#fake-gallery #images').append(img);
             }
         },
         _imagesSql: function(){
-            return "SELECT cartodb_id, ST_X(the_geom) lng, ST_Y(the_geom) lat, hash, imgur_small, imgur_thumb, imgur_orig FROM "+this.options.table+" WHERE hash = '"+this.lotHash+"' AND the_geom IS NOT NULL ORDER BY created_at desc"
+            return "SELECT cartodb_id, ST_X(the_geom) lng, ST_Y(the_geom) lat, hash, imgur_small, imgur_thumb, imgur_orig FROM "+this.options.table+" WHERE hash = '"+this.lotHash+"' ORDER BY created_at desc"
         },
         _overviewSql: function(){
             return "SELECT ST_X(the_geom) lng, ST_Y(the_geom) lat, hash, address, name FROM "+this.options.table+" WHERE hash = '"+this.lotHash+"' AND the_geom IS NOT NULL ORDER BY created_at asc LIMIT 1"
