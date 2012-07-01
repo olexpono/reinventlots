@@ -35,23 +35,21 @@ Reinvent.modules.app = function(reinvent) {
 
   reinvent.app.Instance = Class.extend({
     init: function(map, options) {
-      reinvent.log.info('app init');
       this.options = _.defaults(options, {
           logging: false
       });
       reinvent.log.enabled = options ? options.logging: false;
+      reinvent.log.info('app init');
       this._map = map;
       //TODO we can split each of these up, to run only what we need for a particular view
       this.maplayer = new reinvent.maplayer.Engine(this._map, {});
       this.imguruploader = new reinvent.imguruploader.Engine(this.options.imgur_form_id);
       this.datalayer = new reinvent.datalayer.Engine(this._map, {});
       //EXAMPLE call how to get data to make new profile page
-      this.lot = new reinvent.lot.Engine('RL-2dGLAA', {});
     },
     run: function() {
         this.maplayer.run();
         this.imguruploader.run();
-        this.lot.run();
         reinvent.log.info('app running');
         $("#userForm").submit(function() {
           Reinvent.app.logImage($("#userForm"));
@@ -63,6 +61,21 @@ Reinvent.modules.app = function(reinvent) {
               imgur_callback
           );
           return false; // prevents actual HTTP submit
+        });
+        this.randomLot(function(data){
+            console.log('db')
+            Reinvent.app.lot = new reinvent.lot.Engine(data.rows[0].hash);
+            Reinvent.app.lot.run();
+        });
+    },
+    randomLot: function(callback){
+        var sql = "WITH f AS (SELECT hash, count(*) c, random() r FROM "+this.options.table+" ORDER BY c desc LIMIT 5) SELECT hash FROM f ORDER BY r LIMIT 1";
+        console.log(sql)
+        $.ajax({
+          type: 'post',
+          dataType: 'json',
+          url: "http://"+this.options.domain+".cartodb.com/api/v2/sql?q="+sql,
+          success: callback
         });
     },
     logImage: function(form){
@@ -143,7 +156,7 @@ Reinvent.modules.lot = function(reinvent) {
         },
         populatePage: function(data){
             // TODO fill title etc dom with this information
-            console.log(data.rows[0].name + ": " + data.rows[0].address );
+            reinvent.log.info(data.rows[0].name + ": " + data.rows[0].address );
             $('#fake-gallery #name').html(data.rows[0].name);
             $('#fake-gallery #address').html(data.rows[0].address);
         },
@@ -158,10 +171,14 @@ Reinvent.modules.lot = function(reinvent) {
         populateGallery: function(data){
             // TODO fill gallery dom with this information
             for (var i = 0; i<data.rows.length; i++){
-                console.log("Thumb: "+data.rows[i].imgur_thumb);
+                reinvent.log.info("Thumb: "+data.rows[i].imgur_thumb);
                 var img = new Image();
                 img.src=data.rows[i].imgur_thumb;
-                $('#fake-gallery #images').append(img);
+                var d = $("<div></div>");
+                d.attr('id', 'img-thumb');
+                // TODO show large d.click( function(e){} , function(e)  )
+                d.append(img)
+                $('#fake-gallery #images').append(d);
             }
         },
         _imagesSql: function(){
@@ -233,14 +250,13 @@ Reinvent.modules.maplayer = function(reinvent) {
             Reinvent.app.datalayer.getNearestLots(function(data) {
                 Reinvent.app.datalayer.plotLots(data);
             });
+            this.addPinIcon();
         },
         setupListeners: function(){
-            //TODO remove the below when we have a button for Drop Pin
-            google.maps.event.addListener(this._map, 'click', function(event) {
-              Reinvent.app.maplayer.dropPin();
-            });
+            // 
         },
         setAddress: function(address){
+            $('#current_address').html(address.split(',')[0]);
             this.address = address;
         },
         getAddress: function(){
@@ -250,6 +266,11 @@ Reinvent.modules.maplayer = function(reinvent) {
           this.marker.setPosition(this._map.getCenter());  
     	  this.lat = this._map.getCenter().lat();
     	  this.lng = this._map.getCenter().lng();
+          this._geocoder.geocode({location: this._map.getCenter()}, function(addresses){
+              if (addresses.length>0){
+                  Reinvent.app.maplayer.setAddress(addresses[0].formatted_address);
+              }
+          })
         },
         dropPin: function(){
           var latLng = this._map.getCenter();
@@ -310,19 +331,31 @@ Reinvent.modules.maplayer = function(reinvent) {
         getLocation: function(position) {
           return [this.lat, this.lng];
         },
-    });
-    reinvent.maplayer.Display = Class.extend({
-        /**
-         * Constructs a new Display with the given DOM element.
-         */
-        init: function(map) {
-            this._map = map;
-        },
-        setEngine: function(engine) {
-            this._engine = engine;
-        },
-        addPin: function(pin) {
-            // TODO
+        addPinIcon: function(){
+            var controlDiv = document.createElement('div');
+            $(controlDiv).css({'cursor': 'pointer',
+                              'textAlign': 'center',
+                              'background': 'none',
+                              'filter': 'alpha (opacity=50)'});
+            controlDiv.title = 'Drop pin';
+            var controlUI = document.createElement('div');
+            $(controlUI).css({'cursor': 'pointer',
+                              'textAlign': 'center',
+                              'background': 'none',
+                              'filter': 'alpha (opacity=50)'});
+            controlUI.title = 'Drop pin';
+            controlDiv.appendChild(controlUI);
+            controlDiv.index = 1;
+            var control = $('<img />');
+            control.attr('src','/images/drop-pin.png');
+            control.attr('alt','drop pin');
+            control.css({'height': '40px', 'width': '40px'});
+            $(controlDiv).append(control);
+            google.maps.event.addDomListener(controlDiv, 'click', function(event) {
+                reinvent.log.info('drop clicked');
+              Reinvent.app.maplayer.dropPin();
+            });
+            this._map.controls[google.maps.ControlPosition.TOP_RIGHT].push(controlDiv);
         }
     });
 }
@@ -355,7 +388,7 @@ Reinvent.modules.log = function(reinvent) {
       if (logger && logger.markTimeline) {
         logger.markTimeline(msg);
       }
-      //console.log(msg);
+      console.log(msg);
     }
   };
 };
