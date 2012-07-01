@@ -1,12 +1,85 @@
-body {
-  max-width: 960px;
-  background-color: whiteSmoke;
-}
-header > hgroup {
-  a { text-decoration: none; }
-  h1 {
-    color: #4ac;
-    font-family: 'Helvetica', sans-serif;
+// RESET
+@import "compass";
+@include global-reset;
+@include reset-html5;
+// END RESET
+
+// COLORS
+$text-color: #000;
+$bg-color: #fff;
+$header-bg: whiteSmoke;
+
+
+// FONTS
+
+$sans: "ff-meta-web-pro", "Helvetica Neue", Arial, sans-serif !default;
+$serif: "ff-meta-web-pro", serif !default;
+$mono: Menlo, Monaco, "Courier New", monospace !default;
+$heading-font-family: "ff-meta-web-pro", "Helvetica Neue", Helvetica, Arial, sans-serif !default;
+$header-title-font-family: "ff-meta-web-pro", sans-serif;
+$header-subtitle-font-family: "ff-meta-web-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+.heading { font-family: $heading-font-family; }
+.sans { font-family: $sans; }
+.serif { font-family: $serif; }
+.mono { font-family: $mono; }
+
+body > header {
+  a, h1 {
     text-decoration: none;
   }
+  h1 {
+    @extend .heading;
+    font-family: $header-title-font-family;
+    font-weight: bold;
+    margin-bottom: 0.6667em;
+  }
+  h2 {
+    font-family: $header-subtitle-font-family;
+  }
 }
+
+body {
+  line-height: 1.5em;
+  color: $text-color;
+  @extend .serif;
+}
+
+h1 {
+  font-size: 2.2em;
+  line-height: 1.2em;
+}
+p { font-size: 16px; }
+
+// *::moz-selection, ::selection {
+//   color: $text-highlight-color;
+//   background: $text-highlight-bg;
+//   text-shadow: darken($text-highlight-bg, 60) 0 0 5px;
+// }
+
+@media only screen and (min-width: 992px) {
+  body { font-size: 1.15em; }
+  h1 { font-size: 2.6em; line-height: 1.2em; }
+}
+// END FONTS
+
+// LAYOUT + COLOR APPLICATIONS
+body {
+  max-width: 960px;
+  background-color: $bg-color;
+  background: url('/images/cubes.png');
+  > header {
+    background-color: $header-bg;
+    h1 {
+      text-indent: -9999em;
+      overflow: hidden;
+      background-image: url('/images/logo.png');
+      background-repeat: no-repeat;
+      background-position: 15% 50%;
+      background-size: 72%;
+      height: 50px;
+      max-width: 350px;
+    }
+  }
+}
+
